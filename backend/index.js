@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 require("./Models/db"); // Database connection
 
@@ -12,6 +13,7 @@ const CartRouter = require("./Routes/CartRouter");
 const AdminRouter = require("./Routes/AdminRouter"); // Admin routes
 
 const PORT = process.env.PORT || 8088;
+const _dirname = path.resolve();
 
 // Middleware
 app.use(cors());
@@ -25,14 +27,23 @@ app.get("/ping", (req, res) => {
 });
 
 // API Routes
-app.use("/api/auth", AuthRouter);       // Signup/Login
-app.use("/api/products", ProductRouter); // Public product routes
-app.use("/api/cart", CartRouter);       // User cart routes
-app.use("/api/admin", AdminRouter);     // Admin only routes
+app.use("/api/auth", AuthRouter);
+app.use("/api/products", ProductRouter);
+app.use("/api/cart", CartRouter);
+app.use("/api/admin", AdminRouter);
 
-// Error handling (404)
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
+// Error handling (only for API routes)
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({ message: "Route not found" });
+  }
+  next();
+});
+
+// ✅ Serve frontend (CRA uses build folder, not dist)
+app.use(express.static(path.join(_dirname, "/frontend/build")));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(_dirname, "frontend", "build", "index.html"));
 });
 
 // Start server
