@@ -40,8 +40,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Serve frontend (CRA uses build folder, not dist)
-app.use(express.static(path.join(_dirname, "/frontend/build")));
+// ✅ Serve React frontend build (Create React App → build folder)
+app.use(express.static(path.join(_dirname, "frontend", "build")));
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(_dirname, "frontend", "build", "index.html"));
 });
