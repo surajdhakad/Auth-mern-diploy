@@ -10,7 +10,7 @@ require("./Models/db"); // Database connection
 const AuthRouter = require("./Routes/AuthRouter");
 const ProductRouter = require("./Routes/ProductRouter");
 const CartRouter = require("./Routes/CartRouter");
-const AdminRouter = require("./Routes/AdminRouter"); // Admin routes
+const AdminRouter = require("./Routes/AdminRouter");
 
 const PORT = process.env.PORT || 8088;
 const _dirname = path.resolve();
@@ -32,7 +32,7 @@ app.use("/api/products", ProductRouter);
 app.use("/api/cart", CartRouter);
 app.use("/api/admin", AdminRouter);
 
-// Error handling (only for API routes)
+// Error handling for API routes only
 app.use((req, res, next) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({ message: "Route not found" });
@@ -40,11 +40,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Serve React frontend build (Create React App → build folder)
-app.use(express.static(path.join(_dirname, "frontend", "build")));
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(_dirname, "frontend", "build", "index.html"));
-});
+// ✅ Serve React frontend build only in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(_dirname, "frontend", "build")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(_dirname, "frontend", "build", "index.html"));
+  });
+}
 
 // Start server
 app.listen(PORT, () => {
